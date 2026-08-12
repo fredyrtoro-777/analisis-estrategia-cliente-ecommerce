@@ -22,7 +22,6 @@ Para garantizar la escalabilidad y automatización del negocio, se rechazó la l
 1. **Ingesta:** Conexión directa al archivo CSV crudo de 536,350 filas.
 2. **Parseo de Fechas:** Se aplicó una transformación avanzada mediante *Configuración Regional (Inglés de EE. UU.)* para interpretar las fechas de longitud variable, convirtiendo el texto en un tipo de dato `Date` (Calendario) limpio.
 3. **Estandarización Numérica:** Se corrigieron los puntos decimales comerciales a comas del sistema, tipificando la columna `Price` como número decimal y `Quantity` como entero.
-4. **Saneamiento:** Se eliminaron de forma masiva los registros corruptos que contenían anomalías como el mes inexistente `00`.
 
 ---
 
