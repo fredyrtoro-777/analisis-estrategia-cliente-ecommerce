@@ -49,12 +49,7 @@ GROUP BY 1;
 ```
 ---
 
-## 💡 5. Recomendaciones Estratégicas para la Gerencia
-
-*   **Mitigación de Quiebres de Stock:** Aunque el **1.60%** de cancelaciones parece un margen controlado, representa **8,585 órdenes insatisfechas** en un año. Tomando en cuenta que el contexto del negocio indica que los clientes cancelan porque exigen recibir todo su pedido junto, este porcentaje impacta directamente la fidelidad del cliente (*LTV*). Se recomienda implementar un sistema de alertas de inventario mínimo en los productos con mayor frecuencia de compra para anticipar el reabastecimiento antes de llegar a cero.
-
-
-### A. Limpieza de Datos y Gestión de Cancelaciones
+### B. Limpieza de Datos y Gestión de Cancelaciones
 Se identificó que las transacciones que inician con 'C' o tienen cantidades negativas representan pedidos cancelados por falta de stock. 
 
 ```sql
@@ -65,7 +60,7 @@ SELECT
 FROM ecommerce_table;
 ```
 
-### B. Segmentación de Clientes (B2B vs B2C)
+### C. Segmentación de Clientes (B2B vs B2C)
 Para separar a los clientes minoristas de las empresas, se aplicó una lógica de agregación por volumen:
 
 ```sql
@@ -87,6 +82,8 @@ ORDER BY Gasto_Total DESC;
 ---
 
 ## 💡 5. Recomendaciones Estratégicas para la Gerencia
+
+**Mitigación de Quiebres de Stock:** Aunque el **1.60%** de cancelaciones parece un margen controlado, representa **8,585 órdenes insatisfechas** en un año. Tomando en cuenta que el contexto del negocio indica que los clientes cancelan porque exigen recibir todo su pedido junto, este porcentaje impacta directamente la fidelidad del cliente (*LTV*). Se recomienda implementar un sistema de alertas de inventario mínimo en los productos con mayor frecuencia de compra para anticipar el reabastecimiento antes de llegar a cero.
 * **Plan de Retención B2B:** El segmento mayorista genera el X% de los ingresos. Se recomienda diseñar un programa de fidelización con descuentos por volumen acumulado.
 * **Control de Stock Crítico:** Los productos [Mencionar Top 3 productos más vendidos] concentran la mayor demanda. Se debe automatizar una alerta de inventario mínimo para evitar cancelaciones por falta de existencias.
 * **Estrategia Logística:** El 80% de los compradores están concentrados en el Reino Unido, pero los países de Europa presentan un ticket promedio más alto. Se sugiere pautar publicidad digital segmentada en esas regiones con envíos gratis en compras superiores a £100.
