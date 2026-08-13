@@ -16,7 +16,13 @@ El equipo de estrategia comercial identificó que los datos crudos presentaban i
 
 ---
 
-## 🛠️ 3. Arquitectura de la Solución (Metodología ETL)
+## 🔎 3. Objetivos del Análisis
+Utilizando **SQL y Power BI**, se dio respuesta a las siguientes preguntas clave de la gerencia:
+* ¿Cuál es la tendencia de ventas mensual y cómo afectan las cancelaciones?
+* ¿Cuáles son los productos más vendidos para optimizar el inventario?
+* ¿Cómo segmentar a los clientes según su volumen de compra y rentabilidad?
+
+## 🛠️ 4. Arquitectura de la Solución (Metodología ETL)
 Para garantizar la escalabilidad y automatización del negocio, y considerando la magnitud de registros, se estructuró un flujo de **Extracción, Transformación y Carga (ETL)** nativo en **Power BI Desktop (Power Query)**:
 
 1. **Ingesta:** Conexión directa al archivo CSV crudo de 536,350 filas.
@@ -25,7 +31,7 @@ Para garantizar la escalabilidad y automatización del negocio, y considerando l
 
 ---
 
-## 📊 4. Hallazgos Estratégicos e Insights de Negocio
+## 📊 5. Hallazgos Estratégicos e Insights de Negocio
 
 ### A. Diagnóstico de Cancelaciones (Falta de Stock)
 Tras evaluar la integridad del dataset en la etapa de carga, se identificaron las transacciones negativas y de código 'C' (Canceladas). Se diseñó una métrica de clasificación en lenguaje DAX (`Estado_Transaccion = IF([Quantity] < 0 || LEFT([TransactionNo], 1) = "C", "Cancelado", "Efectivo")`) para aislar el impacto operativo de las órdenes insatisfechas:
@@ -52,13 +58,13 @@ Se creó una regla de negocio en lenguaje **DAX** (`Segmento_Cliente = IF([Quant
 
 ---
 
-## 💡 5. Recomendaciones Estratégicas para la Gerencia
+## 💡 6. Recomendaciones Estratégicas para la Gerencia
 * **Mitigación de Pérdidas:** Automatizar alertas de inventario mínimo (*Safety Stock*) exclusivamente para los productos del Top 5 (*Paper Craft, Ceramic Jars*), erradicando las 8,585 órdenes canceladas anuales por quiebres de stock.
 * **Fidelización B2B:** Diseñar un programa de beneficios corporativos (descuentos por volumen acumulado) para retener al segmento Mayorista, dado que representan el 35.88% de los ingresos totales con un costo de adquisición por cliente (CAC) sumamente bajo.
 
 ---
 
-## 💻 6. Anexo: Lógica de Código SQL Equivalente
+## 💻 7. Anexo: Lógica de Código SQL Equivalente
 Para demostrar competencias técnicas en entornos de bases de datos relacionales, en el archivo `consultas.sql` de este repositorio se adjunta el código fuente equivalente que resuelve estas mismas preguntas de negocio mediante consultas puras, funciones de agregación, condicionales `CASE WHEN` y manipulación avanzada de cadenas de texto.
 
 
@@ -70,31 +76,9 @@ Para demostrar competencias técnicas en entornos de bases de datos relacionales
 
 
 
-# analisis-estrategia-cliente-ecommerce
-Análisis estratégico de datos transaccionales de comercio electrónico para la segmentación de clientes, optimización de inventario y retención de usuarios mediante SQL.
-
-# 📈 Análisis Estratégico de Clientes y Ventas - E-commerce UK
-
-## 📌 1. Contexto del Negocio
-Este proyecto analiza un conjunto de datos transaccionales de una tienda minorista en línea con sede en el Reino Unido. La empresa vende regalos y artículos para el hogar a nivel global, atendiendo tanto a consumidores finales (B2C) como a pequeñas empresas que compran al por mayor (B2B).
-
-* **Volumen de datos:** 536,350 transacciones analizadas.
-* **Periodo:** 1 año de historial operativo.
-
 ---
 
-## ⚠️ 2. El Reto de Negocio (Problema)
-El equipo de estrategia comercial identifica dos problemas críticos:
-1. Se desconoce el impacto financiero real de las cancelaciones de pedidos (provocadas por quiebres de stock).
-2. No existe una segmentación clara entre clientes comunes y compradores mayoristas, lo que impide diseñar campañas de marketing eficientes.
 
----
-
-## 🔎 3. Objetivos del Análisis
-Utilizando **SQL**, se dio respuesta a las siguientes preguntas clave de la gerencia:
-* ¿Cuál es la tendencia de ventas mensual y cómo afectan las cancelaciones?
-* ¿Cuáles son los productos más vendidos para optimizar el inventario?
-* ¿Cómo segmentar a los clientes según su volumen de compra y rentabilidad?
 
 ---
 
