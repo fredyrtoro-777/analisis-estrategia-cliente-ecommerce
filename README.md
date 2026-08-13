@@ -17,7 +17,7 @@ El equipo de estrategia comercial identificó que los datos crudos presentaban i
 ---
 
 ## 🛠️ 3. Arquitectura de la Solución (Metodología ETL)
-Para garantizar la escalabilidad y automatización del negocio, se rechazó la limpieza manual en Excel y se estructuró un flujo de **Extracción, Transformación y Carga (ETL)** nativo en **Power BI Desktop (Power Query)**:
+Para garantizar la escalabilidad y automatización del negocio, y considerando la magnitud de registros, se estructuró un flujo de **Extracción, Transformación y Carga (ETL)** nativo en **Power BI Desktop (Power Query)**:
 
 1. **Ingesta:** Conexión directa al archivo CSV crudo de 536,350 filas.
 2. **Parseo de Fechas:** Se aplicó una transformación avanzada mediante *Configuración Regional (Inglés de EE. UU.)* para interpretar las fechas de longitud variable, convirtiendo el texto en un tipo de dato `Date` (Calendario) limpio.
