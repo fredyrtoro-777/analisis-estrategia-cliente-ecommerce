@@ -28,6 +28,7 @@ Para garantizar la escalabilidad y automatización del negocio, y considerando l
 1. **Ingesta:** Conexión directa al archivo CSV crudo de 536,350 filas.
 2. **Parseo de Fechas:** Se aplicó una transformación avanzada mediante *Configuración Regional (Inglés de EE. UU.)* para interpretar las fechas de longitud variable, convirtiendo el texto en un tipo de dato `Date` (Calendario) limpio.
 3. **Estandarización Numérica:** Se corrigieron los puntos decimales comerciales a comas del sistema, tipificando la columna `Price` como número decimal y `Quantity` como entero.
+4. **Estructura Granular**: Se identificó que el dataset opera bajo un modelo de líneas de detalle por transacción (donde un único TransactionNo agrupa múltiples registros de productos). Para mitigar duplicidades en el volumen operativo, todas las métricas de conteo de órdenes se desarrollaron bajo la lógica de valores únicos corporativos (DISTINCT), garantizando la integridad de los KPIs financieros.
 
 ---
 
