@@ -58,11 +58,12 @@ Se creó una regla de negocio en lenguaje **DAX** (`Segmento_Cliente = IF([Quant
 * **Segmento Mayorista (B2B):** Genera **£22,588,886.88 (35.88%)** de los ingresos totales.
 * *Insight:* Menos del 2% de los clientes (compradores al por mayor) inyectan más de un tercio del capital del e-commerce.
 
-### E. Dimensión del Carrito de Compras (Volumen por Transacción)
-Para responder a la métrica de volumen por pedido, se diseñó una medida iterativa avanzada en lenguaje DAX (`AVERAGEX` combinado con `CALCULATE`) para consolidar las líneas de detalle por cada transacción única, blindando el cálculo contra registros de devoluciones:
+### E. Dimensión del Carrito de Compras y Solución al Sesgo Estadístico
+Para responder a la métrica de volumen por transacción, se evaluó inicialmente un promedio convencional, el cual arrojó una cifra distorsionada de 282.54 unidades por pedido debido al peso de las compras masivas corporativas (B2B). Debido a las brechas extremas entre los compradores minoristas (B2C) y los mayoristas (B2B), el promedio global pierde validez representativa, ya que los valores atípicos (*outliers*) corporativos sesgan el indicador hacia arriba, ocultando el comportamiento del consumidor común.
 
-* **Tamaño Promedio del Carrito:** 282.54 unidades por orden de compra.
-* **Impacto Comercial (Insight Crítico):** Un promedio superior a las 280 unidades por transacción es atípico en un comercio electrónico minorista convencional. Este hallazgo confirma y cuantifica el enorme peso operativo que tiene el segmento Mayorista (B2B) dentro del modelo de negocio, validando la necesidad de enfocar los esfuerzos de la compañía en la retención de estos clientes de gran volumen.
+* **Enfoque Práctico Aplicado:** Para corregir este sesgo provocado por valores atípicos (*outliers*) sin saturar el reporte con múltiples indicadores, se sustituyó el promedio por la **Mediana Comercial** utilizando la función avanzada **`MEDIANX`** en lenguaje DAX.
+* **Resultado Definitivo:** La mediana se estableció en **[122]** unidades por orden de compra. 
+* **Impacto Comercial:** Este número representa con total fidelidad el comportamiento del cliente central y típico del negocio, demostrando que las decisiones estratégicas de empaque o promociones del e-commerce deben diseñarse basándose en carritos reales y no en promedios ciegos inflados por el canal mayorista.
 
 ---
 
