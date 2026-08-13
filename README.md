@@ -47,7 +47,8 @@ Se aplicó un filtro de visualización *Top 10* basado en volumen acumulado para
 ### D. Estructura de Ingresos por Segmento de Cliente
 Se creó una regla de negocio en lenguaje **DAX** (`Segmento_Cliente = IF([Quantity] >= 50, "Cliente Mayorista (B2B)", "Cliente Minorista (B2C)")`) para medir la procedencia del dinero:
 * **Segmento Minorista (B2C):** Genera **£40,377,087.46 (64.12%)** de los ingresos generales.
-* **Segmento Mayorista (B2B):** Genera **£22,588,886.88 (35.88%)** de los ingresos totales. *Insight:* Menos del 2% de los clientes (compradores al por mayor) inyectan más de un tercio del capital del e-commerce.
+* **Segmento Mayorista (B2B):** Genera **£22,588,886.88 (35.88%)** de los ingresos totales.
+* *Insight:* Menos del 2% de los clientes (compradores al por mayor) inyectan más de un tercio del capital del e-commerce.
 
 ---
 
