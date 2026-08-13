@@ -58,6 +58,12 @@ Se creó una regla de negocio en lenguaje **DAX** (`Segmento_Cliente = IF([Quant
 * **Segmento Mayorista (B2B):** Genera **£22,588,886.88 (35.88%)** de los ingresos totales.
 * *Insight:* Menos del 2% de los clientes (compradores al por mayor) inyectan más de un tercio del capital del e-commerce.
 
+### E. Dimensión del Carrito de Compras (Volumen por Transacción)
+Para responder a la métrica de volumen por pedido, se diseñó una medida iterativa avanzada en lenguaje DAX (`AVERAGEX` combinado con `CALCULATE`) para consolidar las líneas de detalle por cada transacción única, blindando el cálculo contra registros de devoluciones:
+
+* **Tamaño Promedio del Carrito:** 282.54 unidades por orden de compra.
+* **Impacto Comercial (Insight Crítico):** Un promedio superior a las 280 unidades por transacción es atípico en un comercio electrónico minorista convencional. Este hallazgo confirma y cuantifica el enorme peso operativo que tiene el segmento Mayorista (B2B) dentro del modelo de negocio, validando la necesidad de enfocar los esfuerzos de la compañía en la retención de estos clientes de gran volumen.
+
 ---
 
 ## 💡 6. Recomendaciones Estratégicas para la Gerencia
