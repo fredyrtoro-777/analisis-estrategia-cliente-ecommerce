@@ -28,7 +28,8 @@ Para garantizar la escalabilidad y automatización del negocio, se rechazó la l
 ## 📊 4. Hallazgos Estratégicos e Insights de Negocio
 
 ### A. Diagnóstico de Cancelaciones (Falta de Stock)
-Tras evaluar la integridad del dataset en la etapa de carga, se identificaron las transacciones negativas y de código 'C' (Canceladas):
+Tras evaluar la integridad del dataset en la etapa de carga, se identificaron las transacciones negativas y de código 'C' (Canceladas). Se diseñó una métrica de clasificación en lenguaje DAX (`Estado_Transaccion = IF([Quantity] < 0 || LEFT([TransactionNo], 1) = "C", "Cancelado", "Efectivo")`) para aislar el impacto operativo de las órdenes insatisfechas:
+
 * **Ventas Efectivas:** 527,765 registros (**98.40%**).
 * **Cancelaciones por Quiebre de Stock:** 8,585 registros (**1.60%**).
 
