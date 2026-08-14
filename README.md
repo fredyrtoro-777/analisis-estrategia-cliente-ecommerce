@@ -1,4 +1,6 @@
 # 📈 Optimización Comercial y Segmentación de Clientes: Análisis de E-commerce UK
+![Dashboard de Power BI](Dashboard_Analisis_Estrategy_Ecommerce_UK.jpg)
+
 
 ## 📌 1. Contexto del Negocio
 Este proyecto analiza un conjunto de datos transaccionales de una tienda minorista en línea con sede en el Reino Unido. La empresa vende regalos y artículos para el hogar a nivel global, atendiendo tanto a consumidores finales (B2C) como a pequeñas empresas que compran al por mayor (B2B).
