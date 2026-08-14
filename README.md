@@ -64,11 +64,12 @@ Se creó una regla de negocio en lenguaje **DAX** (`Segmento_Cliente = IF([Quant
 * *Insight:* Menos del 2% de los clientes (compradores al por mayor) inyectan más de un tercio del capital del e-commerce.
 
 ### E. Dimensión del Carrito de Compras y Solución al Sesgo Estadístico
-Para responder a la métrica de volumen por transacción, se evaluó inicialmente un promedio convencional, el cual arrojó una cifra distorsionada de 282.54 unidades por pedido debido al peso de las compras masivas corporativas (B2B). Debido a las brechas extremas entre los compradores minoristas (B2C) y los mayoristas (B2B), el promedio global pierde validez representativa, ya que los valores atípicos (*outliers*) corporativos sesgan el indicador hacia arriba, ocultando el comportamiento del consumidor común.
+Al evaluar el volumen y el valor por transacción única (ID de Pedido) para comprender la verdadera tracción del negocio, se identificó una distribución altamente sesgada provocada por el peso del canal mayorista (B2B):
 
-* **Enfoque Práctico Aplicado:** Para corregir este sesgo provocado por valores atípicos (*outliers*) sin saturar el reporte con múltiples indicadores, se sustituyó el promedio por la **Mediana Comercial** utilizando la función avanzada **`MEDIANX`** en lenguaje DAX.
-* **Resultado Definitivo:** La mediana se estableció en **[122]** unidades por orden de compra. 
-* **Impacto Comercial:** Este número representa con total fidelidad el comportamiento del cliente central y típico del negocio, demostrando que las decisiones estratégicas de empaque o promociones del e-commerce deben diseñarse basándose en carritos reales y no en promedios ciegos inflados por el canal mayorista.
+* **Volumen por Pedido:** El promedio convencional arrojó una cifra inflada de **282.54 unidades**, mientras que la **Mediana Comercial (`MEDIANX`)** se ubicó en **122 unidades** por orden de compra.
+* **Valor por Pedido (Ticket de Compra):** Siguiendo la misma línea de consistencia metodológica para neutralizar el sesgo financiero de los valores atípicos (*outliers*), se calculó la **Mediana del Ticket de Compra** en lenguaje DAX. Este indicador clave se estableció en **£1,380.00** por transacción efectiva.
+* **Impacto Comercial:** Una mediana de 122 unidades y £1,380 por pedido confirma que el e-commerce posee un cliente central institucionalizado o comercializador de alta capacidad, con un valor de artículo promedio que ronda las £11.31. Este hallazgo demuestra que las proyecciones de ingresos y las estrategias de precios de la compañía deben diseñarse bajo el cobijo de la mediana financiera, evitando que los promedios ciegos inflen artificialmente el conocimiento real del consumidor.
+
 
 ---
 
