@@ -70,7 +70,6 @@ Al evaluar el volumen y el valor por transacción única (ID de Pedido) para com
 * **Valor por Pedido (Ticket de Compra):** Siguiendo la misma línea de consistencia metodológica para neutralizar el sesgo financiero de los valores atípicos (*outliers*), se calculó la **Mediana del Ticket de Compra** en lenguaje DAX. Este indicador clave se estableció en **£1,380.00** por transacción efectiva.
 * **Impacto Comercial:** Una mediana de 122 unidades y £1,380 por pedido confirma que el e-commerce posee un cliente central institucionalizado o comercializador de alta capacidad, con un valor de artículo promedio que ronda las £11.31. Este hallazgo demuestra que las proyecciones de ingresos y las estrategias de precios de la compañía deben diseñarse bajo el cobijo de la mediana financiera, evitando que los promedios ciegos inflen artificialmente el conocimiento real del consumidor.
 
-
 ---
 
 ## 💡 6. Recomendaciones Estratégicas para la Gerencia
@@ -79,77 +78,8 @@ Al evaluar el volumen y el valor por transacción única (ID de Pedido) para com
 El segmento mayorista es el motor de rentabilidad por transacción del e-commerce dado que representan el 35.88% de los ingresos totales con un costo de adquisición por cliente (CAC) sumamente bajo. Para potenciar el negocio, se recomienda al equipo de marketing estructurar un programa de beneficios exclusivos (Account-Based Marketing) enfocado en estos compradores de volumen, asegurando contratos de suministro anuales que estabilicen el flujo de caja del negocio. 
 
 ---
-
 ## 💻 7. Anexo: Lógica de Código SQL Equivalente
-Para demostrar competencias técnicas en entornos de bases de datos relacionales, en el archivo `consultas.sql` de este repositorio se adjunta el código fuente equivalente que resuelve estas mismas preguntas de negocio mediante consultas puras, funciones de agregación, condicionales `CASE WHEN` y manipulación avanzada de cadenas de texto.
+Para demostrar competencias técnicas en entornos de bases de datos relacionales, en el archivo `consultas.sql` de este repositorio se adjunta el código fuente equivalente. Este script resuelve y valida de forma exacta las mismas preguntas core del negocio mediante consultas puras, funciones de agregación, agrupaciones temporales y condicionales `CASE WHEN`. 
 
-
-
-
-
-
-
-
-
-
----
-
-
-
-
-
-Se ejecutó la siguiente consulta para medir la proporción exacta de este problema:
-
-```sql
-SELECT 
-    CASE 
-        WHEN Quantity < 0 OR TransactionNo LIKE 'C%' THEN 'Cancelaciones / Devoluciones'
-        ELSE 'Ventas Efectivas'
-    END AS Estado_Transaccion,
-    COUNT(*) AS Cantidad_Registros,
-    ROUND(COUNT(*) * 100.0 / 536350, 2) AS Porcentaje_Del_Total
-FROM Sales_Transaction_v stv
-GROUP BY 1;
-```
----
-
-### B. Limpieza de Datos y Gestión de Cancelaciones
-Se identificó que las transacciones que inician con 'C' o tienen cantidades negativas representan pedidos cancelados por falta de stock. 
-
-```sql
--- Consulta para medir el impacto de las cancelaciones
-SELECT 
-    COUNT(CASE WHEN Cantidad < 0 THEN 1 END) AS Total_Cancelaciones,
-    SUM(CASE WHEN Cantidad < 0 THEN (Cantidad * Precio) END) AS Dinero_Perdido_GBP
-FROM ecommerce_table;
-```
-
-
-
-
-
-
-
-
-
-### C. Segmentación de Clientes (B2B vs B2C)
-Para separar a los clientes minoristas de las empresas, se aplicó una lógica de agregación por volumen:
-
-```sql
--- Segmentación estratégica de clientes
-SELECT 
-    CustomerNo,
-    SUM(Cantidad * Precio) AS Gasto_Total,
-    AVG(Cantidad) AS Promedio_Productos_Por_Pedido,
-    CASE 
-        WHEN AVG(Cantidad) >= 50 THEN 'Cliente Mayorista (B2B)'
-        ELSE 'Cliente Minorista (B2C)'
-    END AS Segmento_Cliente
-FROM ecommerce_table
-WHERE Cantidad > 0
-GROUP BY CustomerNo
-ORDER BY Gasto_Total DESC;
-```
-
----
+Este anexo técnico funciona como un proceso de auditoría cruzada (Cross-Validation), garantizando que la base de datos local y el modelo de Business Intelligence en Power BI consoliden exactamente los mismos ingresos totales (£62,965,974.34) y tendencias operativas, asegurando un ecosistema de datos íntegro y confiable.
 
