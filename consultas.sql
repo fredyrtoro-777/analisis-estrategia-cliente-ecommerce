@@ -1,54 +1,58 @@
 -- =========================================================================
--- PROYECTO: Análisis Estratégico de Clientes y Ventas - E-commerce UK
+-- PROYECTO: Soporte Técnico Analítico - E-commerce UK
 -- AUTOR: Fredy Ricardo Toro Castañeda
--- ENFOQUE: Soporte Técnico e Integridad Metodológica (Híbrido SQL / Power BI)
+-- ENFOQUE: Homologación de KPIs Financieros y Operativos (SQL vs Power BI)
+-- NOTA: Consultas ejecutadas sobre la base de datos depurada y estandarizada 
+--       mediante el proceso ETL de Power BI (Power Query).
 -- =========================================================================
 
 -- -------------------------------------------------------------------------
--- PASO 1: Diagnóstico de Calidad de Datos e Impacto de Cancelaciones
--- Objetivo: Identificar la proporción de órdenes canceladas por falta de stock.
+-- 0. AUDITORÍA DE INGESTA MASIVA (Chequeo Rápido)
+-- Objetivo: Confirmar que el motor de SQL absorbió el 100% de las filas 
+--           del archivo CSV exportado desde Power BI, sin recortes ni pérdidas.
 -- -------------------------------------------------------------------------
-SELECT 
-    CASE 
-        WHEN Quantity < 0 OR TransactionNo LIKE 'C%' THEN 'Cancelaciones / Devoluciones'
-        ELSE 'Ventas Efectivas'
-    END AS Estado_Transaccion,
-    COUNT(*) AS Cantidad_Registros,
-    ROUND(COUNT(*) * 100.0 / 536350, 2) AS Porcentaje_Del_Total
-FROM ecommerce_limpio
-GROUP BY 1;
+SELECT COUNT(*) AS Total_Filas_Cargadas 
+FROM ecommerce_data_clean;
 
 
 -- -------------------------------------------------------------------------
--- PASO 2: Tendencia de Ventas Mensuales (Eje Temporal)
--- Objetivo: Analizar la estacionalidad comercial excluyendo registros corruptos
---           (Mes '00') y cancelaciones.
+-- 1. CONTROL DE CALIDAD Y CUADRE FINANCIERO (Métrica de Validación)
+-- Objetivo: Verificar la integridad de la carga frente a las tarjetas del Dashboard.
+--           Garantiza el match exacto con los ingresos de £62,965,974.34.
 -- -------------------------------------------------------------------------
 SELECT 
-    SUBSTR(Date, -4) AS Anio,
-    PRINTF('%02d', CAST(REPLACE(
-        CASE 
-            WHEN SUBSTR(Date, -7, 1) = '/' THEN SUBSTR(Date, -6, 2)
-            ELSE SUBSTR(Date, -6, 1)
-        END, '/', '') AS INTEGER)) AS Mes_Limpio,
-    COUNT(DISTINCT TransactionNo) AS Total_Pedidos_Efectivos,
+    COUNT(*) AS Total_Filas_Efectivas,
+    COUNT(DISTINCT TransactionNo) AS Total_Pedidos_Unicos,
     ROUND(SUM(Quantity * Price), 2) AS Ingresos_Totales_GBP
-FROM ecommerce_limpio
-WHERE Quantity > 0 
-  AND TransactionNo NOT LIKE 'C%'
-  AND SUBSTR(Date, -6, 2) != '00' -- Exclusión de anomalías de sistema
-GROUP BY Anio, Mes_Limpio
-ORDER BY Anio ASC, Mes_Limpio ASC;
+FROM ecommerce_data_clean
+WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%';
 
 
 -- -------------------------------------------------------------------------
--- PASO 3: Análisis de Rotación de Inventario (Top 10 Productos)
--- Objetivo: Identificar los artículos estrella basados en unidades vendidas.
+-- 2. TENDENCIA DE VENTAS MENSUALES (Eje Temporal) - REPARACIÓN DE ORDEN
+-- Objetivo: Evaluar la estacionalidad comercial basándose en la fecha limpia.
+-- FORMATO: Visualización estructurada como MM-AAAA (ej. 12-2018).
+-- SOLUCIÓN: Se aplica TRIM para eliminar espacios ocultos al final del texto 
+--           y asegurar que el año 2018 se posicione en la primera fila.
+-- -------------------------------------------------------------------------
+SELECT 
+    SUBSTR(TRIM(Date), 4, 2) || '-' || SUBSTR(TRIM(Date), 7, 4) AS Mes_Periodo, 
+    COUNT(DISTINCT TransactionNo) AS Total_Pedidos_Efectivos,
+    ROUND(SUM(Quantity * Price), 2) AS Ingresos_Mensuales_GBP
+FROM ecommerce_data_clean
+WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%'
+GROUP BY SUBSTR(TRIM(Date), 7, 4), SUBSTR(TRIM(Date), 4, 2)
+ORDER BY CAST(SUBSTR(TRIM(Date), 7, 4) AS INTEGER) ASC, CAST(SUBSTR(TRIM(Date), 4, 2) AS INTEGER) ASC;
+
+
+-- -------------------------------------------------------------------------
+-- 3. ROTACIÓN DE INVENTARIO (Top 10 Productos Estrella)
+-- Objetivo: Identificar los artículos con mayor demanda acumulada.
 -- -------------------------------------------------------------------------
 SELECT 
     ProductName,
     SUM(Quantity) AS Unidades_Totales_Vendidas
-FROM ecommerce_limpio
+FROM ecommerce_data_clean
 WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%'
 GROUP BY ProductName
 ORDER BY Unidades_Totales_Vendidas DESC
@@ -56,16 +60,17 @@ LIMIT 10;
 
 
 -- -------------------------------------------------------------------------
--- PASO 4: Estructura de Ingresos por Segmento de Cliente (B2B vs B2C)
--- Objetivo: Clasificar clientes según la regla de negocio (Mayorista >= 50 unidades).
+-- 4. ESTRUCTURA DE INGRESOS POR SEGMENTO DE CLIENTE (B2B vs B2C)
+-- Objetivo: Cuantificar la inyección de capital según la regla de volumen DAX.
 -- -------------------------------------------------------------------------
 SELECT 
     CASE 
         WHEN Quantity >= 50 THEN 'Cliente Mayorista (B2B)'
         ELSE 'Cliente Minorista (B2C)'
     END AS Segmento_Cliente,
-    ROUND(SUM(Quantity * Price), 2) AS Suma_Venta_Total
-FROM ecommerce_limpio
+    ROUND(SUM(Quantity * Price), 2) AS Suma_Venta_Total_GBP,
+    ROUND(SUM(Quantity * Price) * 100.0 / 62965974.34, 2) AS Porcentaje_Contribucion
+FROM ecommerce_data_clean
 WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%'
 GROUP BY 1;
 
