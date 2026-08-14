@@ -1,82 +1,108 @@
 -- =========================================================================
 -- PROYECTO: Análisis Estratégico de Clientes y Ventas - E-commerce UK
 -- AUTOR: Fredy Ricardo Toro Castañeda
--- OBJETIVO: Resolver preguntas clave de negocio y segmentación de clientes
+-- ENFOQUE: Soporte Técnico e Integridad Metodológica (Híbrido SQL / Power BI)
 -- =========================================================================
 
 -- -------------------------------------------------------------------------
--- PREGUNTA 1: ¿Cuál fue la tendencia de ventas a lo largo de los meses?
--- Objetivo: Identificar la estacionalidad y el volumen de ingresos reales.
--- NOTA: Se excluyen las cantidades negativas para analizar solo ventas efectivas.
+-- PASO 1: Diagnóstico de Calidad de Datos e Impacto de Cancelaciones
+-- Objetivo: Identificar la proporción de órdenes canceladas por falta de stock.
 -- -------------------------------------------------------------------------
 SELECT 
-    DATE_TRUNC('month', Fecha) AS Mes, -- Agrupa las fechas por el primer día de cada mes
-    COUNT(DISTINCT TransactionNo) AS Total_Pedidos,
-    SUM(Cantidad * Precio) AS Ingresos_Totales_GBP
-FROM ecommerce_table
-WHERE Cantidad > 0 AND TransactionNo NOT LIKE 'C%'
-GROUP BY 1
-ORDER BY Mes ASC;
+    CASE 
+        WHEN Quantity < 0 OR TransactionNo LIKE 'C%' THEN 'Cancelaciones / Devoluciones'
+        ELSE 'Ventas Efectivas'
+    END AS Estado_Transaccion,
+    COUNT(*) AS Cantidad_Registros,
+    ROUND(COUNT(*) * 100.0 / 536350, 2) AS Porcentaje_Del_Total
+FROM ecommerce_limpio
+GROUP BY 1;
 
 
 -- -------------------------------------------------------------------------
--- PREGUNTA 2: ¿Cuáles son los productos que se compran con mayor frecuencia?
--- Objetivo: Identificar los artículos "estrella" para optimizar el inventario.
+-- PASO 2: Tendencia de Ventas Mensuales (Eje Temporal)
+-- Objetivo: Analizar la estacionalidad comercial excluyendo registros corruptos
+--           (Mes '00') y cancelaciones.
 -- -------------------------------------------------------------------------
 SELECT 
-    Producto,
-    COUNT(DISTINCT TransactionNo) AS Veces_Comprado,
-    SUM(Cantidad) AS Unidades_Totales_Vendidas
-FROM ecommerce_table
-WHERE Cantidad > 0 AND TransactionNo NOT LIKE 'C%'
-GROUP BY Producto
+    SUBSTR(Date, -4) AS Anio,
+    PRINTF('%02d', CAST(REPLACE(
+        CASE 
+            WHEN SUBSTR(Date, -7, 1) = '/' THEN SUBSTR(Date, -6, 2)
+            ELSE SUBSTR(Date, -6, 1)
+        END, '/', '') AS INTEGER)) AS Mes_Limpio,
+    COUNT(DISTINCT TransactionNo) AS Total_Pedidos_Efectivos,
+    ROUND(SUM(Quantity * Price), 2) AS Ingresos_Totales_GBP
+FROM ecommerce_limpio
+WHERE Quantity > 0 
+  AND TransactionNo NOT LIKE 'C%'
+  AND SUBSTR(Date, -6, 2) != '00' -- Exclusión de anomalías de sistema
+GROUP BY Anio, Mes_Limpio
+ORDER BY Anio ASC, Mes_Limpio ASC;
+
+
+-- -------------------------------------------------------------------------
+-- PASO 3: Análisis de Rotación de Inventario (Top 10 Productos)
+-- Objetivo: Identificar los artículos estrella basados en unidades vendidas.
+-- -------------------------------------------------------------------------
+SELECT 
+    ProductName,
+    SUM(Quantity) AS Unidades_Totales_Vendidas
+FROM ecommerce_limpio
+WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%'
+GROUP BY ProductName
 ORDER BY Unidades_Totales_Vendidas DESC
 LIMIT 10;
 
 
 -- -------------------------------------------------------------------------
--- PREGUNTA 3: ¿Cuántos productos compra el cliente en cada transacción?
--- Objetivo: Entender el volumen del carrito de compras promedio (Ticket Promedio).
+-- PASO 4: Estructura de Ingresos por Segmento de Cliente (B2B vs B2C)
+-- Objetivo: Clasificar clientes según la regla de negocio (Mayorista >= 50 unidades).
 -- -------------------------------------------------------------------------
 SELECT 
-    TransactionNo,
-    CustomerNo,
-    SUM(Cantidad) AS Total_Productos_En_Pedido,
-    SUM(Cantidad * Precio) AS Valor_Total_Pedido_GBP
-FROM ecommerce_table
-WHERE Cantidad > 0 AND TransactionNo NOT LIKE 'C%'
-GROUP BY TransactionNo, CustomerNo
-ORDER BY Total_Productos_En_Pedido DESC;
-
-
--- -------------------------------------------------------------------------
--- PREGUNTA 4: ¿Cuáles son los segmentos de clientes más rentables?
--- Objetivo: Separar clientes minoristas (B2C) de los mayoristas (B2B) 
---           según su volumen promedio de compra.
--- -------------------------------------------------------------------------
-SELECT 
-    CustomerNo,
-    País,
-    SUM(Cantidad * Precio) AS Gasto_Total_GBP,
-    COUNT(DISTINCT TransactionNo) AS Total_Visitas,
-    AVG(Cantidad) AS Promedio_Unidades_Por_Pedido,
     CASE 
-        WHEN AVG(Cantidad) >= 50 THEN 'Cliente Mayorista (B2B)'
+        WHEN Quantity >= 50 THEN 'Cliente Mayorista (B2B)'
         ELSE 'Cliente Minorista (B2C)'
-    END AS Segmento_Estratégico
-FROM ecommerce_table
-WHERE Cantidad > 0 AND CustomerNo IS NOT NULL
-GROUP BY CustomerNo, País
-ORDER BY Gasto_Total_GBP DESC;
+    END AS Segmento_Cliente,
+    ROUND(SUM(Quantity * Price), 2) AS Suma_Venta_Total
+FROM ecommerce_limpio
+WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%'
+GROUP BY 1;
 
 
 -- -------------------------------------------------------------------------
--- ANÁLISIS EXTRA: Impacto Financiero de las Cancelaciones (Falta de Stock)
--- Objetivo: Medir cuánto dinero se dejó de percibir debido a las cancelaciones.
+-- PASO 5: Mitigación de Sesgo Estadístico mediante Medianas (Nivel Avanzado)
+-- Objetivo: Replicar de forma exacta la lógica de las funciones MEDIANX de DAX
+--           para neutralizar el impacto de los valores atípicos (outliers).
 -- -------------------------------------------------------------------------
-SELECT 
-    COUNT(DISTINCT TransactionNo) AS Total_Pedidos_Cancelados,
-    SUM(ABS(Cantidad) * Precio) AS Ingresos_Perdidos_GBP
-FROM ecommerce_table
-WHERE Cantidad < 0 OR TransactionNo LIKE 'C%';
 
+-- A. MEDIANA DE LA CANTIDAD DE ARTÍCULOS POR PEDIDO (Resultado Esperado: 122)
+WITH CantidadesPorPedido AS (
+    SELECT 
+        TransactionNo,
+        SUM(Quantity) AS Total_Unidades,
+        ROW_NUMBER() OVER (ORDER BY SUM(Quantity)) AS RowNum,
+        COUNT(*) OVER () AS TotalRows
+    FROM ecommerce_limpio
+    WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%'
+    GROUP BY TransactionNo
+)
+SELECT ROUND(AVG(Total_Unidades), 2) AS Mediana_Cantidades_Por_Pedido
+FROM CantidadesPorPedido
+WHERE RowNum IN ((TotalRows + 1) / 2, (TotalRows + 2) / 2);
+
+
+-- B. MEDIANA DEL TICKET DE COMPRA POR PEDIDO (Resultado Esperado: 1380.00)
+WITH TicketPorPedido AS (
+    SELECT 
+        TransactionNo,
+        SUM(Quantity * Price) AS Valor_Total_Pedido,
+        ROW_NUMBER() OVER (ORDER BY SUM(Quantity * Price)) AS RowNum,
+        COUNT(*) OVER () AS TotalRows
+    FROM ecommerce_limpio
+    WHERE Quantity > 0 AND TransactionNo NOT LIKE 'C%'
+    GROUP BY TransactionNo
+)
+SELECT ROUND(AVG(Valor_Total_Pedido), 2) AS Mediana_Ticket_Por_Pedido
+FROM TicketPorPedido
+WHERE RowNum IN ((TotalRows + 1) / 2, (TotalRows + 2) / 2);
