@@ -21,7 +21,7 @@ Utilizando **SQL y Power BI**, se dio respuesta a las siguientes preguntas clave
 * ¿Cuál es la tendencia de ventas mensual y cómo afectan las cancelaciones?
 * ¿Cuáles son los productos más vendidos para optimizar el inventario?
 * ¿Cómo segmentar a los clientes según su volumen de compra y rentabilidad?
-* ¿Cuántos productos compra el cliente en promedio en cada transacción?
+* ¿Cuántos productos compra el cliente en promedio y cuál es el ticket promedio en cada transacción?
 
 ## 🛠️ 4. Arquitectura de la Solución (Metodología ETL)
 Para garantizar la escalabilidad y automatización del negocio, y considerando la magnitud de registros, se estructuró un flujo de **Extracción, Transformación y Carga (ETL)** nativo en **Power BI Desktop (Power Query)**:
